@@ -1,3 +1,4 @@
+import os
 import string
 import argparse
 
@@ -13,6 +14,13 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def demo(opt):
+    if os.path.isfile(opt.character):
+        with open(opt.character, 'r') as f:
+            tmp = f.readlines()
+            for i in range(len(tmp)):
+                tmp[i] = tmp[i].strip()
+            tmp = ''.join(tmp)
+        opt.character = tmp
     """ model configuration """
     if 'CTC' in opt.Prediction:
         converter = CTCLabelConverter(opt.character)
@@ -119,7 +127,7 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     """ vocab / character number configuration """
-    if opt.sensitive:
+    if opt.sensitive and not os.path.isfile(opt.character):
         opt.character = string.printable[:-6]  # same with ASTER setting (use 94 char).
 
     cudnn.benchmark = True

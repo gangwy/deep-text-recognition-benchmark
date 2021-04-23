@@ -21,6 +21,13 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train(opt):
     """ dataset preparation """
+    if os.path.isfile(opt.character):
+        with open(opt.character, 'r') as f:
+            tmp = f.readlines()
+            for i in range(len(tmp)):
+                tmp[i] = tmp[i].strip()
+            tmp = ''.join(tmp)
+        opt.character = tmp
     if not opt.data_filtering_off:
         print('Filtering the images containing characters which are not in opt.character')
         print('Filtering the images whose label is longer than opt.batch_max_length')
@@ -198,6 +205,7 @@ def train(opt):
                 best_model_log = f'{"Best_accuracy":17s}: {best_accuracy:0.3f}, {"Best_norm_ED":17s}: {best_norm_ED:0.2f}'
 
                 loss_model_log = f'{loss_log}\n{current_model_log}\n{best_model_log}'
+
                 print(loss_model_log)
                 log.write(loss_model_log + '\n')
 
@@ -284,7 +292,7 @@ if __name__ == '__main__':
     os.makedirs(f'./saved_models/{opt.exp_name}', exist_ok=True)
 
     """ vocab / character number configuration """
-    if opt.sensitive:
+    if opt.sensitive and not os.path.isfile(opt.character):
         # opt.character += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         opt.character = string.printable[:-6]  # same with ASTER setting (use 94 char).
 
